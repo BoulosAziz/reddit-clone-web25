@@ -1,22 +1,11 @@
-//Comment.js
-const Comment = require('../models/Comment');
-const handleAsync = require('../utils/handleAsync');
+import mongoose from "mongoose";
 
-// Add comment
-exports.addComment = handleAsync(async (req, res) => {
-  const comment = await Comment.create({
-    content: req.body.content,
-    author: req.user.id,
-    post: req.params.postId
-  });
-  res.status(201).json(comment);
+const commentSchema = new mongoose.Schema({
+  content: { type: String, required: true },
+  author: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  post: { type: mongoose.Schema.Types.ObjectId, ref: "Post", required: true },
+  createdAt: { type: Date, default: Date.now },
 });
 
-// Get comments for a post
-exports.getCommentsByPost = handleAsync(async (req, res) => {
-  const comments = await Comment.find({ post: req.params.postId })
-                                .populate('author', 'username')
-                                .sort({ createdAt: 1 });
-  res.json(comments);
-});
-
+const Comment = mongoose.model("Comment", commentSchema);
+export default Comment;
