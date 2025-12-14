@@ -1,9 +1,9 @@
-const Post = require('../models/Post');
-const handleAsync = require('../utils/handleAsync');
+import Post from "../models/Post.js";
+import handleAsync from "../utils/handleAsync.js";
 
 // Create a post
-exports.createPost = handleAsync(async (req, res) => {
-  const { title, content, community } = req.body;
+export const createPost = handleAsync(async (req, res) => {
+  const { title, content, community} = req.body;
 
   const newPost = new Post({
     title,
@@ -16,17 +16,16 @@ exports.createPost = handleAsync(async (req, res) => {
   res.status(201).json(savedPost);
 });
 
-
 // Get posts by community
-exports.getPostsByCommunity = handleAsync(async (req, res) => {
+export const getPostsByCommunity = handleAsync(async (req, res) => {
   const posts = await Post.find({ community: req.params.communityId })
-                          .populate('author', 'username')
-                          .sort({ createdAt: -1 });
+    .populate('author', 'username')
+    .sort({ createdAt: -1 });
   res.json(posts);
 });
 
-// Upvote/downvote a post
-exports.votePost = handleAsync(async (req, res) => {
+// Upvote / downvote a post
+export const votePost = handleAsync(async (req, res) => {
   const { type } = req.body; // 'upvote' or 'downvote'
   const post = await Post.findById(req.params.postId);
 
