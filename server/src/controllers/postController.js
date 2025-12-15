@@ -1,3 +1,4 @@
+//postController.js
 const Post = require('../models/Post');
 const handleAsync = require('../utils/handleAsync');
 
