@@ -1,8 +1,6 @@
-// server/src/utils/handleAsync.js
-// Helper to catch async errors without try/catch in every controller
-
+// Wrap async controllers to catch errors
 const handleAsync = (fn) => (req, res, next) => {
   Promise.resolve(fn(req, res, next)).catch(next);
 };
 
-module.exports = handleAsync;
+export default handleAsync;
