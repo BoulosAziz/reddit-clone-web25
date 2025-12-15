@@ -1,9 +1,8 @@
-//commentController.js
-const Comment = require('../models/Comment');
-const handleAsync = require('../utils/handleAsync');
+import Comment from "../models/Comment.js";
+import handleAsync from "../utils/handleAsync.js";
 
 // Add comment
-exports.addComment = handleAsync(async (req, res) => {
+export const addComment = handleAsync(async (req, res) => {
   const comment = await Comment.create({
     content: req.body.content,
     author: req.user.id,
@@ -13,10 +12,9 @@ exports.addComment = handleAsync(async (req, res) => {
 });
 
 // Get comments for a post
-exports.getCommentsByPost = handleAsync(async (req, res) => {
+export const getCommentsByPost = handleAsync(async (req, res) => {
   const comments = await Comment.find({ post: req.params.postId })
-                                .populate('author', 'username')
-                                .sort({ createdAt: 1 });
+    .populate('author', 'username')
+    .sort({ createdAt: 1 });
   res.json(comments);
 });
-

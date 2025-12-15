@@ -1,3 +1,4 @@
+//userController.js
 import User from "../models/User.js";
 
 /* ---------------------------------------
@@ -42,3 +43,26 @@ export const updateMe = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+// @desc    Search users by username
+// @route   GET /api/users/search?username=
+// @access  Protected
+export const searchUsers = async (req, res) => {
+  try {
+    const { username } = req.query;
+
+    if (!username) {
+      return res.status(400).json({ message: "Username query is required" });
+    }
+
+    const users = await User.find({
+      username: { $regex: username, $options: "i" }
+    }).select("-password");
+
+    res.status(200).json(users);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
