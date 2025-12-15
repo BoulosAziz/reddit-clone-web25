@@ -18,3 +18,10 @@ export const getCommentsByPost = handleAsync(async (req, res) => {
     .sort({ createdAt: 1 });
   res.json(comments);
 });
+// Delete comment
+export const deleteComment = handleAsync(async (req, res) => {
+  // req.comment comes from checkCommentOwner middleware
+  await req.comment.deleteOne();
+  res.json({ message: "Comment deleted successfully" });
+});
+
