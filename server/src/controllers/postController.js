@@ -1,3 +1,4 @@
+//postController.js
 import Post from "../models/Post.js";
 import handleAsync from "../utils/handleAsync.js";
 
@@ -52,3 +53,25 @@ export const deletePost = handleAsync(async (req, res) => {
   res.json({ message: "Post deleted successfully" });
 });
 
+
+// Global feed (all posts)
+export const getGlobalFeed = handleAsync(async (req, res) => {
+  const posts = await Post.find()
+    .populate("author", "username")
+    .populate("community", "name")
+    .sort({ createdAt: -1 });
+
+  res.json(posts);
+});
+
+// Personalized feed (joined communities only)
+export const getUserFeed = handleAsync(async (req, res) => {
+  const posts = await Post.find({
+    community: { $in: req.user.joinedCommunities },
+  })
+    .populate("author", "username")
+    .populate("community", "name")
+    .sort({ createdAt: -1 });
+
+  res.json(posts);
+});
