@@ -40,6 +40,19 @@ export const votePost = handleAsync(async (req, res) => {
   await post.save();
   res.json(post);
 });
+import Comment from "../models/Comment.js";
+
+// Delete post
+export const deletePost = handleAsync(async (req, res) => {
+  // delete all comments on this post
+  await Comment.deleteMany({ post: req.post._id });
+
+  // delete the post itself
+  await req.post.deleteOne();
+
+  res.json({ message: "Post deleted successfully" });
+});
+
 
 // Global feed (all posts)
 export const getGlobalFeed = handleAsync(async (req, res) => {
