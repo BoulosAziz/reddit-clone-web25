@@ -7,6 +7,7 @@ import Communities from "./pages/Communities.jsx";
 import Community from "./pages/Community.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
+import Placeholder from "./pages/Placeholder.jsx";
 
 function App() {
   return (
@@ -18,6 +19,15 @@ function App() {
           <Route path="create" element={<CreatePost />} />
           <Route path="communities" element={<Communities />} />
           <Route path="communities/:name" element={<Community />} />
+          <Route path="explore" element={<Placeholder title="Explore" />} />
+          <Route path="about" element={<Placeholder title="About" />} />
+          <Route path="advertise" element={<Placeholder title="Advertise" />} />
+          <Route path="dev" element={<Placeholder title="Developer Platform" />} />
+          <Route path="pro" element={<Placeholder title="Reddit Pro" />} />
+          <Route path="help" element={<Placeholder title="Help" />} />
+          <Route path="blog" element={<Placeholder title="Blog" />} />
+          <Route path="careers" element={<Placeholder title="Careers" />} />
+          <Route path="press" element={<Placeholder title="Press" />} />
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
         </Route>
