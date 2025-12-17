@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import MainLayout from "./components/layout /MainLayout.jsx";
+import MainLayout from "./components/layout/MainLayout.jsx";
 import Home from "./pages/Home.jsx";
 import Post from "./pages/Post.jsx";
 import CreatePost from "./pages/CreatePost.jsx";
