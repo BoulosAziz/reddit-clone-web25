@@ -1,9 +1,40 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+const commentCountCache = {};
 
 function PostCard({ post }) {
   const [vote, setVote] = useState(0); // -1, 0, 1
   const [score, setScore] = useState(post.score ?? 123);
+  const [commentCount, setCommentCount] = useState(
+    typeof post.comments !== 'undefined' ? post.comments : undefined
+  );
+
+  useEffect(() => {
+    let mounted = true;
+    const id = post._id ?? post.id;
+    if (!id) return;
+
+    async function load() {
+      if (commentCountCache[id] !== undefined) {
+        setCommentCount(commentCountCache[id]);
+        return;
+      }
+      try {
+        const r = await fetch(`/api/comments/${id}`);
+        if (!r.ok) return;
+        const data = await r.json();
+        if (!mounted) return;
+        commentCountCache[id] = (data && data.length) || 0;
+        setCommentCount(commentCountCache[id]);
+      } catch (err) {
+        // ignore, keep fallback
+      }
+    }
+
+    load();
+    return () => { mounted = false; };
+  }, [post._id, post.id]);
 
   function handleUpvote() {
     if (vote === 1) {
@@ -51,11 +82,11 @@ function PostCard({ post }) {
             <span>{post.time ?? '2h'}</span>
           </div>
           <h3 style={{ margin: '8px 0' }}>
-            <Link to={`/posts/${post.id}`} style={{ color: 'var(--text)', textDecoration: 'none' }}>{post.title}</Link>
+            <Link to={`/posts/${post._id ?? post.id}`} style={{ color: 'var(--text)', textDecoration: 'none' }}>{post.title}</Link>
           </h3>
-          <p style={{ color: '#4b5563', marginTop: 8 }}>{post.body}</p>
+          <p style={{ color: '#4b5563', marginTop: 8 }}>{post.content ?? post.body}</p>
           <div className="post-actions">
-            <span style={{ color: 'var(--accent)' }}>{post.comments ?? 10} comments</span>
+            <Link to={`/posts/${post._id ?? post.id}`} style={{ color: 'var(--accent)', textDecoration: 'none' }}>{typeof commentCount === 'number' ? commentCount : (post.comments ?? 0)} comments</Link>
             <span>Share</span>
             <span>Save</span>
           </div>
