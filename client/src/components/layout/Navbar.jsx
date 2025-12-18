@@ -1,43 +1,66 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useTheme } from "../../context/ThemeContext.jsx";
+import { useAuth } from "../../context/AuthContext.jsx";
+import AskModal from "../features/AskModal";
+import "./Navbar.css";
 
 function Navbar() {
+  const { user, logout } = useAuth();
+  const [isAskModalOpen, setIsAskModalOpen] = useState(false);
+
   return (
-    <header className="topbar" style={{ background: 'linear-gradient(90deg,#ff4500,#ff6a00)', color: 'white' }}>
-      <div className="app-container" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 12px' }}>
-        <div className="topbar-logo" style={{ alignItems: 'center', display: 'flex' }}>
-          <div className="logo-circle" style={{ width: 32, height: 32, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800 }}>r</div>
-          <Link to="/" style={{ marginLeft: 8, color: 'var(--text)', textDecoration: 'none', fontWeight: 700, fontSize: 15 }}>RedditClone</Link>
-        </div>
+    <>
+      <header className="topbar">
+        <div className="app-container">
+          <div className="topbar-logo">
+            <div className="logo-circle">
+              <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 20, height: 20 }}>
+                 <path fillRule="evenodd" d="M10 0C4.477 0 0 4.477 0 10s4.477 10 10 10 10-4.477 10-10S15.523 0 10 0zm0 2a8 8 0 100 16 8 8 0 000-16zM6 9a1 1 0 100 2 1 1 0 000-2zm8 0a1 1 0 100 2 1 1 0 000-2zm-6.09 4.39a.75.75 0 011.06-1.06 2.006 2.006 0 004.06 0 .75.75 0 111.5 0 3.506 3.506 0 01-7.06 0 .75.75 0 01.44.06z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <span style={{ fontSize: 22, fontWeight: 700, letterSpacing: '-0.5px' }}>reddit</span>
+          </div>
 
-        <div style={{ marginLeft: 12, flex: 1 }}>
-          <input className="topbar-search" placeholder="Search RedditClone" />
-        </div>
+          <div className="topbar-search">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input placeholder="Find anything" />
+          </div>
 
-        <nav style={{ marginLeft: 12, display: 'flex', gap: 10, alignItems: 'center' }}>
-          <Link to="/communities" style={{ color: 'var(--text)', textDecoration: 'none' }}>Communities</Link>
-          <Link to="/create" style={{ color: 'var(--text)', textDecoration: 'none' }}>Create Post</Link>
-          <Link to="/login" style={{ color: 'var(--text)', textDecoration: 'none' }}>Log in</Link>
-          <Link to="/register" className="signup-btn" style={{ textDecoration: 'none' }}>Sign up</Link>
-          <ThemeToggle />
-        </nav>
-      </div>
-    </header>
+          <button 
+            className="nav-btn-secondary" 
+            style={{ marginLeft: 12, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600 }}
+            onClick={() => setIsAskModalOpen(true)}
+          >
+            Ask 🤖
+          </button>
+
+          <nav style={{ marginLeft: 12, display: 'flex', gap: 12, alignItems: 'center' }}>
+            <button className="nav-btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M9 3v18"/><path d="M15 9h-4"/><path d="M15 15h-4"/></svg>
+              Get App
+            </button>
+            
+            {user ? (
+              <>
+                <span className="user-name">u/{user.username}</span>
+                <button onClick={logout} className="nav-btn-primary">Log Out</button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="nav-btn-primary" style={{ textDecoration: 'none' }}>Log In</Link>
+                <Link to="/register" className="nav-btn-secondary" style={{ textDecoration: 'none' }}>Sign Up</Link>
+              </>
+            )}
+          </nav>
+        </div>
+      </header>
+      <AskModal isOpen={isAskModalOpen} onClose={() => setIsAskModalOpen(false)} />
+    </>
   );
 }
 
 export default Navbar;
-
-function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
-
-  return (
-    <button
-      onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-      aria-label="Toggle theme"
-      style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '6px 8px', borderRadius: 6 }}
-    >
-      {theme === 'dark' ? '🌙' : '☀️'}
-    </button>
-  );
-}

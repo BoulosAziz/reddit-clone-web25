@@ -2,6 +2,16 @@
 import Community from "../models/Community.js";
 import User from "../models/User.js";
 import Post from "../models/Post.js";
+import Comment from "../models/Comment.js";
+
+// Helper to populate comment counts AND score (duplicated from postController for now)
+const populatePostFields = async (posts) => {
+  return Promise.all(posts.map(async (post) => {
+    const commentCount = await Comment.countDocuments({ post: post._id });
+    const score = (post.upvotes ? post.upvotes.length : 0) - (post.downvotes ? post.downvotes.length : 0);
+    return { ...post.toObject(), commentCount, score };
+  }));
+};
 
 /* ---------------------------------------
    CREATE COMMUNITY
@@ -55,7 +65,9 @@ export const getCommunityById = async (req, res) => {
       .populate("author", "username")
       .sort({ createdAt: -1 });
 
-    res.json({ community, posts });
+    const postsWithCounts = await populatePostFields(posts);
+
+    res.json({ community, posts: postsWithCounts });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }

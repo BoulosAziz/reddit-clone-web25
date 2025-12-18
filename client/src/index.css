@@ -1,261 +1,72 @@
+/* Reddit Clone - Global Styles & CSS Variables Only */
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  --bg: #efefef;
-  --surface: #ffffff;
-  --muted: #6b7280;
-  --brand: #ff4500;
-  --accent: #0079d3;
-  --card-border: #e6e7e9;
-  --text: #111827;
-  color: #111827;
-  background-color: var(--bg);
-
-  /* sidebar variables (theme-aware) */
-  --sidebar-bg: #ffffff;
-  --sidebar-text: #111827;
-  --sidebar-border: rgba(0,0,0,0.06);
-  --sidebar-icon: #6b7280;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  /* Dark Mode Colors (Primary) */
+  --bg-dark: #030303;
+  --surface-dark: #1a1a1b;
+  --border-dark: #343536;
+  --text-dark: #d7dadc;
+  --muted-dark: #818384;
+  
+  /* Light Mode Colors */
+  --bg-light: #dae0e6;
+  --surface-light: #ffffff;
+  --border-light: #ccced0;
+  --text-light: #1c1c1c;
+  --muted-light: #7c7c7c;
+  
+  /* Brand Colors */
+  --brand-orange: #ff4500;
+  --upvote-orange: #ff4500;
+  --downvote-blue: #7193ff;
+  --blue: #0079d3;
+  
+  /* Active Theme (Default: Dark) */
+  --bg: var(--bg-dark);
+  --surface: var(--surface-dark);
+  --border: var(--border-dark);
+  --text: var(--text-dark);
+  --muted: var(--muted-dark);
+  --hover-overlay: rgba(255, 255, 255, 0.08);
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-  background-color: var(--bg);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
 }
 
-.app-container {
-  max-width: 1100px;
-  margin: 0 auto;
-}
-
-.topbar-search {
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: 1px solid var(--card-border);
-  width: 420px;
-}
-
-.topbar .app-container { display:flex; align-items:center; gap:12px; }
-.topbar { background: var(--surface); }
-.topbar .logo-circle { background: var(--brand); color: white; }
-.topbar a { color: var(--text); }
-.topbar .signup-btn { background: var(--brand); color: white; padding:6px 10px; border-radius:6px; }
-
-.subreddit-pill { background: #f3f4f6; border-radius: 999px; padding: 4px 8px; font-size: 12px; color: #374151; font-weight:600; }
-
-.post-grid { grid-template-columns: 64px 1fr; }
-.vote-column { width: 56px; }
-.vote-btn { font-size: 14px; background: none; border: none; cursor: pointer; color: #9ca3af; }
-.vote-btn.upvoted { color: var(--brand); }
-.vote-btn.downvoted { color: #94a3b8; }
-
-.post-card h3 { font-size: 16px; }
-.post-card p { color: #4b5563; }
-
-.thumbnail {
-  width: 70px;
-  height: 70px;
-  background: #f3f4f6;
-  border-radius: 6px;
-  display: inline-block;
-}
-
-/* Sidebar dark layout similar to Reddit's left nav */
-
-.sidebar-dark {
-  width: 260px;
-  background: var(--sidebar-bg);
-  color: var(--sidebar-text);
-  border-right: 1px solid var(--sidebar-border);
-  padding-top: 8px;
-  border-radius: 8px;
-}
-
-.sidebar-dark .sidebar-item { padding: 8px 10px; }
-.sidebar-dark .sidebar-link { display: flex; gap: 12px; align-items: center; color: inherit; text-decoration: none; padding: 6px 8px; border-radius: 8px; }
-.sidebar-dark .sidebar-link.small { font-size: 13px; color: var(--sidebar-text); opacity: 0.85; }
-.sidebar-dark .sidebar-link:hover { background: rgba(0,0,0,0.04); }
-.sidebar-dark .sidebar-icon { width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; color: var(--sidebar-icon); }
-.sidebar-dark .sidebar-selected .sidebar-link { background: rgba(0,0,0,0.06); color: var(--sidebar-text); font-weight: 700; }
-.sidebar-divider { height: 1px; background: rgba(0,0,0,0.06); margin: 8px 0; }
-.sidebar-heading { padding: 8px 10px; color: var(--muted); }
-
-.menu-circle { position: absolute; right: -22px; top: 8px; width: 36px; height: 36px; border-radius: 50%; background: transparent; border: 1px solid rgba(0,0,0,0.06); color: var(--sidebar-text); display: flex; align-items: center; justify-content: center; cursor: pointer; }
-
-@media (max-width: 900px) {
-  .sidebar-dark { display: none; }
-}
-
-.post-grid {
-  display: grid;
-  grid-template-columns: 72px 1fr;
-  gap: 12px;
-  align-items: start;
-}
-
-.vote-column {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 8px;
-}
-
-.vote-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.post-actions {
-  display: flex;
-  gap: 16px;
-  color: var(--muted);
-  margin-top: 8px;
-}
-
-.topbar {
-  box-shadow: 0 1px 0 rgba(0,0,0,0.06);
-}
-
-.topbar-logo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.logo-circle {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: var(--surface);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--brand);
-  font-weight: 700;
-}
-
-.card {
-  background: var(--surface);
-  border: 1px solid var(--card-border);
-  border-radius: 6px;
-  padding: 12px;
-}
-
-.post-card:hover {
-  box-shadow: 0 1px 6px rgba(16,24,40,0.06);
-}
-
-.sidebar-widget {
-  margin-bottom: 16px;
-}
-
-.sidebar-sticky {
-  position: sticky;
-  top: 96px;
-}
-
-@media (max-width: 900px) {
-  .post-grid { grid-template-columns: 48px 1fr; }
-  .topbar-search { display: none; }
-  .app-container { padding: 0 12px; }
-  .sidebar-sticky { position: static; }
-}
-
-/* Dark theme overrides applied via data-theme attribute on <html> */
-[data-theme="dark"] {
-  --bg: #1a1a1b;
-  --surface: #0f0f11;
-  --muted: #9aa3b2;
-  --brand: #ff4500;
-  --accent: #d7dce0;
-  --card-border: #262626;
-  color: #e6e9ef;
-  background-color: var(--bg);
-}
-
-[data-theme="dark"] body {
-  background-color: var(--bg);
-}
-
-[data-theme="dark"] .topbar-search {
-  background: #1f1f1f;
-  color: var(--accent);
-  border-color: #2b2b2b;
-}
-
-[data-theme="dark"] .card {
-  background: #0f0f11;
-  border-color: #262626;
-}
-
-[data-theme="dark"] .post-card:hover {
-  box-shadow: 0 1px 6px rgba(0,0,0,0.6);
-}
-
-[data-theme="dark"] a { color: #9fd3ff; }
-
-/* Sidebar variables for dark theme */
-[data-theme="dark"] {
-  --sidebar-bg: #0f1113;
-  --sidebar-text: #dbe2e8;
-  --sidebar-border: #202326;
-  --sidebar-icon: #9aa6b2;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+a {
+  text-decoration: none;
+  color: inherit;
 }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
   cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  border: none;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+/* Global Layout */
+.app-layout {
+  min-height: 100vh;
+}
+
+.layout-container {
+  display: flex;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding-top: 56px;
+}
+
+.main-content {
+  flex: 1;
+  min-width: 0;
 }

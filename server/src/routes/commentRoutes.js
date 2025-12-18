@@ -3,7 +3,8 @@ import { protect } from "../middleware/authMiddleware.js";
 import {
   addComment,
   getCommentsByPost,
-  deleteComment
+  deleteComment,
+  voteComment
 } from "../controllers/commentController.js";
 import { checkCommentOwner } from "../middleware/commentMiddleware.js";
 
@@ -20,7 +21,11 @@ router.delete(
   "/:commentId",
   protect,
   checkCommentOwner,
+  checkCommentOwner,
   deleteComment
 );
+
+// Vote on comment
+router.post("/:commentId/vote", protect, voteComment);
 
 export default router;
