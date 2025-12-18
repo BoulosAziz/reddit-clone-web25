@@ -1,16 +1,22 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext.jsx";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  function handleSubmit(e) {
+  const { login } = useAuth();
+
+  async function handleSubmit(e) {
     e.preventDefault();
-    // Placeholder: auth flow
-    console.log('login', { email, password });
-    navigate('/');
+    const result = await login(email, password);
+    if (result.success) {
+      navigate('/');
+    } else {
+      alert(result.message);
+    }
   }
 
   return (

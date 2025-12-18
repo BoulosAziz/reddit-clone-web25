@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext.jsx";
 
 function Register() {
   const [username, setUsername] = useState("");
@@ -7,11 +8,16 @@ function Register() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  function handleSubmit(e) {
+  const { register } = useAuth();
+
+  async function handleSubmit(e) {
     e.preventDefault();
-    // Placeholder: register flow
-    console.log('register', { username, email, password });
-    navigate('/');
+    const result = await register(username, email, password);
+    if (result.success) {
+      navigate('/');
+    } else {
+      alert(result.message);
+    }
   }
 
   return (
