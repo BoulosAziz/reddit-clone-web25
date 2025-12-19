@@ -23,6 +23,7 @@ export const register = async (req, res) => {
       _id: newUser._id,
       username: newUser.username,
       email: newUser.email,
+      avatar: newUser.avatar,
       token: generateToken(newUser._id),
     });
   } catch (error) {
@@ -51,6 +52,7 @@ export const login = async (req, res) => {
       _id: user._id,
       username: user.username,
       email: user.email,
+      avatar: user.avatar,
       token: generateToken(user._id),
     });
   } catch (error) {

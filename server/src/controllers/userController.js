@@ -83,7 +83,7 @@ export const getUserByUsername = async (req, res) => {
     // Fetch user's posts
     const posts = await Post.find({ author: user._id })
       .populate("community", "name")
-      .populate("author", "username")
+      .populate("author", "username avatar")
       .sort({ createdAt: -1 });
 
     res.json({ user, posts });

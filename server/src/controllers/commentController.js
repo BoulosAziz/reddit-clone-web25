@@ -11,7 +11,7 @@ export const addComment = handleAsync(async (req, res) => {
   });
 
   // If we need to populate author immediately for the frontend
-  await comment.populate('author', 'username');
+  await comment.populate('author', 'username avatar');
 
   res.status(201).json(comment);
 });
@@ -19,7 +19,7 @@ export const addComment = handleAsync(async (req, res) => {
 // Get comments for a post
 export const getCommentsByPost = handleAsync(async (req, res) => {
   const comments = await Comment.find({ post: req.params.postId })
-    .populate('author', 'username')
+    .populate('author', 'username avatar')
     .sort({ createdAt: 1 });
   res.json(comments);
 });

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "../api/axios";
 import { useCommunity } from "../context/CommunityContext";
 import "./Explore.css";
@@ -167,11 +168,15 @@ function Explore() {
 }
 
 function CommunityCard({ community, onJoin, isJoined, getIcon }) {
+  const navigate = useNavigate();
   // Generate fake visitor count for realism
   const visitors = Math.floor(Math.random() * 900) + 100; // 100-999k
 
   return (
-    <div className="community-card">
+    <div 
+      className="community-card" 
+      onClick={() => navigate(`/communities/${community.name}`)}
+    >
       <div className="community-card-header">
         <div className="community-info">
           <div className="community-icon">
@@ -184,7 +189,10 @@ function CommunityCard({ community, onJoin, isJoined, getIcon }) {
         </div>
         <button 
           className={`btn-join-card ${isJoined ? 'btn-joined-card' : ''}`}
-          onClick={() => onJoin(community._id)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onJoin(community._id);
+          }}
         >
           {isJoined ? "Joined" : "Join"}
         </button>

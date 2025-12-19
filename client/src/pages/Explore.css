@@ -80,6 +80,7 @@
     flex-direction: column;
     height: 100%;
     transition: border-color 0.2s;
+    cursor: pointer;
 }
 
 .community-card:hover {

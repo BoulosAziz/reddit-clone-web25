@@ -40,7 +40,7 @@ export const createPost = handleAsync(async (req, res) => {
 // Get posts by community
 export const getPostsByCommunity = handleAsync(async (req, res) => {
   const posts = await Post.find({ community: req.params.communityId })
-    .populate('author', 'username')
+    .populate('author', 'username avatar')
     .sort({ createdAt: -1 });
   res.json(posts);
 });
@@ -102,7 +102,7 @@ export const getGlobalFeed = handleAsync(async (req, res) => {
     // Initial fetch - sorts by new by default in DB for efficiency, 
     // but we'll re-sort in memory for other modes
     let posts = await Post.find(filter)
-      .populate("author", "username")
+      .populate("author", "username avatar")
       .populate("community", "name"); // removed sort here to handle manually
 
     // Populate counts AND scores
@@ -139,7 +139,7 @@ export const getUserFeed = handleAsync(async (req, res) => {
   const posts = await Post.find({
     community: { $in: req.user.joinedCommunities },
   })
-    .populate("author", "username")
+    .populate("author", "username avatar")
     .populate("community", "name")
     .sort({ createdAt: -1 });
 
@@ -181,7 +181,7 @@ export const generateSummary = handleAsync(async (req, res) => {
 // Get popular posts (sorted by engagement)
 export const getPopularPosts = handleAsync(async (req, res) => {
   const posts = await Post.find()
-    .populate("author", "username")
+    .populate("author", "username avatar")
     .populate("community", "name");
 
   const postsWithCounts = await populatePostFields(posts);
@@ -212,7 +212,7 @@ export const getPostById = handleAsync(async (req, res) => {
   console.log("getPostById called with ID:", req.params.id);
 
   const post = await Post.findById(req.params.id)
-    .populate("author", "username")
+    .populate("author", "username avatar")
     .populate("community", "name");
 
   if (!post) {
@@ -223,7 +223,7 @@ export const getPostById = handleAsync(async (req, res) => {
   // Fetch comments for this post
   console.log("Fetching comments for post:", post._id);
   const comments = await Comment.find({ post: post._id })
-    .populate("author", "username")
+    .populate("author", "username avatar")
     .sort({ createdAt: -1 });
 
   console.log(`Found ${comments.length} comments`);
@@ -324,7 +324,7 @@ export const getSavedPosts = handleAsync(async (req, res) => {
   const user = await User.findById(userId).populate({
     path: "savedPosts",
     populate: [
-      { path: "author", select: "username" },
+      { path: "author", select: "username avatar" },
       { path: "community", select: "name" }
     ]
   });

@@ -108,9 +108,12 @@ Question: "${question}"
 Available Communities in Database:
 ${communityList}
 
-Important: ONLY recommend communities from the list above. Choose 2-3 most relevant ones.
+Important rules:
+1. ONLY recommend communities from the list above.
+2. Output valid JSON only.
+3. DO NOT add comments or explanations inside the JSON.
 
-Respond in strict JSON format:
+Respond with this JSON structure:
 {
     "answer": "Concise answer to the question.",
     "communities": ["r/Name1", "r/Name2"]
@@ -124,8 +127,9 @@ Respond in strict JSON format:
                 }
             ],
             model: "llama-3.3-70b-versatile",
-            temperature: 0.5,
-            max_tokens: 500
+            temperature: 0.2,
+            max_tokens: 500,
+            response_format: { type: "json_object" }
         });
 
         let text = completion.choices[0]?.message?.content;
@@ -134,23 +138,61 @@ Respond in strict JSON format:
         // Clean up markdown code blocks if present
         text = text.replace(/```json/g, '').replace(/```/g, '').trim();
 
+        // Extract the last JSON object found in the text (handles "thinking" processes or corrections)
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+            // Try to find the last occurrence of specific keys to identify the final answer block
+            // Or simple approach: substring from first { to last }
+            // If faulty "double JSON", we try to parse; if fail, we might need smarter splitting
+            // For now, let's trust the refined prompt + simple cleanup
+            const firstOpen = text.indexOf('{');
+            const lastClose = text.lastIndexOf('}');
+            if (firstOpen !== -1 && lastClose !== -1) {
+                text = text.substring(firstOpen, lastClose + 1);
+            }
+        }
+
         try {
             const data = JSON.parse(text);
             return data;
         } catch (parseError) {
             console.error('JSON Parse Error:', parseError);
-            // If JSON parsing fails, return the text as answer
+            // Try to extract just the last block if generic parse failed
+            try {
+                const parts = text.split('}');
+                if (parts.length > 1) {
+                    // Re-assemble the last likely block
+                    const lastPart = parts[parts.length - 2] + '}';
+                    const lastJson = lastPart.substring(lastPart.indexOf('{'));
+                    return JSON.parse(lastJson);
+                }
+            } catch (retryError) {
+                console.error('Retry JSON parse failed');
+            }
+
+            // Return text as fallback
             return {
-                answer: text,
+                answer: text, // Return the raw text so user at least sees the answer
                 communities: []
             };
         }
     } catch (error) {
         console.error('Error asking AI:', error);
         console.error('Full error:', error.message);
+
+        // Try to fetch real communities for fallback
+        let fallbackCommunities = [];
+        try {
+            const Community = (await import("../models/Community.js")).default;
+            const comms = await Community.find({}, 'name').limit(3);
+            fallbackCommunities = comms.map(c => `r/${c.name}`);
+        } catch (dbError) {
+            console.error("Failed to fetch fallback communities", dbError);
+        }
+
         return {
             answer: "I'm having trouble connecting to the AI right now. Please try again in a moment.",
-            communities: ["r/AskReddit", "r/NoStupidQuestions", "r/explainlikeimfive"]
+            communities: fallbackCommunities
         };
     }
 }

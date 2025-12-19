@@ -37,7 +37,7 @@ function AskModal({ isOpen, onClose }) {
     // Navigate to community page
     // Extract name from "r/name" or just "name"
     const name = communityName.replace(/^r\//, '');
-    navigate(`/r/${name}`);
+    navigate(`/communities/${name}`);
     onClose();
   }
 
