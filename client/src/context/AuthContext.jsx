@@ -84,7 +84,7 @@ export const AuthProvider = ({ children }) => {
   const refreshUser = async () => {
     if (token) {
       try {
-        const res = await axios.get("/users/profile");
+        const res = await axios.get("/users/me");
         setUser(res.data);
         localStorage.setItem("user", JSON.stringify(res.data));
       } catch (err) {

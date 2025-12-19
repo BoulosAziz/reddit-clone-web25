@@ -7,7 +7,7 @@ import "./Profile.css";
 
 function Profile() {
   const { username } = useParams();
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, refreshUser } = useAuth();
   
   const [profile, setProfile] = useState(null);
   const [posts, setPosts] = useState([]);
@@ -52,6 +52,8 @@ function Profile() {
       });
       // Update local state
       setProfile({ ...profile, bio: res.data.bio, avatar: res.data.avatar });
+      // Sync global auth state (navbar avatar, etc)
+      await refreshUser(); 
       setIsEditing(false);
     } catch (err) {
       console.error(err);

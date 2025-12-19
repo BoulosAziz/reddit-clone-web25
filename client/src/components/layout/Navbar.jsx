@@ -3,11 +3,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTheme } from "../../context/ThemeContext.jsx";
 import { useAuth } from "../../context/AuthContext.jsx";
 import AskModal from "../features/AskModal";
+import GetAppModal from "../features/GetAppModal";
 import "./Navbar.css";
 
 function Navbar() {
   const { user, logout } = useAuth();
   const [isAskModalOpen, setIsAskModalOpen] = useState(false);
+  const [isGetAppModalOpen, setIsGetAppModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
@@ -52,14 +54,24 @@ function Navbar() {
           </button>
 
           <nav style={{ marginLeft: 12, display: 'flex', gap: 12, alignItems: 'center' }}>
-            <button className="nav-btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <button 
+              className="nav-btn-secondary" 
+              style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+              onClick={() => setIsGetAppModalOpen(true)}
+            >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M9 3v18"/><path d="M15 9h-4"/><path d="M15 15h-4"/></svg>
               Get App
             </button>
             
             {user ? (
               <>
-                <Link to={`/u/${user.username}`} className="user-name">u/{user.username}</Link>
+                <Link to={`/u/${user.username}`} className="user-avatar-container">
+                  <img 
+                    src={user.avatar || "https://www.redditstatic.com/avatars/defaults/v2/avatar_default_1.png"} 
+                    alt={`u/${user.username}`} 
+                    className="nav-user-avatar" 
+                  />
+                </Link>
                 <button onClick={logout} className="nav-btn-primary">Log Out</button>
               </>
             ) : (
@@ -72,6 +84,7 @@ function Navbar() {
         </div>
       </header>
       <AskModal isOpen={isAskModalOpen} onClose={() => setIsAskModalOpen(false)} />
+      <GetAppModal isOpen={isGetAppModalOpen} onClose={() => setIsGetAppModalOpen(false)} />
     </>
   );
 }
