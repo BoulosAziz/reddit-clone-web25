@@ -13,7 +13,13 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 const app = express();
-app.use(cors());
+
+// CORS configuration - allow frontend URL from environment variable
+const corsOptions = {
+  origin: process.env.FRONTEND_URL || "http://localhost:5173",
+  credentials: true,
+};
+app.use(cors(corsOptions));
 
 // Increase limit for base64 image/video uploads (50MB) 
 // Kept from HEAD as it's useful for AI stuff too, supersedes 'express.json()' from dev

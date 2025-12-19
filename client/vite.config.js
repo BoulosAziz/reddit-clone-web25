@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/uploads': 'http://localhost:5000'
+      '/uploads': process.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'
     }
   }
 })
