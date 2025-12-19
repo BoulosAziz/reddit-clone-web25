@@ -5,13 +5,15 @@ import axios from "../../api/axios";
 
 const commentCountCache = {};
 
-function PostCard({ post, onDelete }) {
+function PostCard({ post, onDelete, onUnsave, isSavedPage = false }) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [vote, setVote] = useState(0); // -1, 0, 1
   const [score, setScore] = useState(post.score ?? 123);
   const [summary, setSummary] = useState(post.summary || null);
   const [loadingSummary, setLoadingSummary] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [copySuccess, setCopySuccess] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -86,13 +88,25 @@ function PostCard({ post, onDelete }) {
     
     setLoadingSummary(true);
     try {
+      console.log('Requesting summary for post:', post._id);
       const response = await axios.post(`/posts/${post._id}/summarize`);
-      setSummary(response.data.summary);
+      console.log('Summary response:', response.data);
+      
+      if (response.data && response.data.summary) {
+        setSummary(response.data.summary);
+      } else {
+        console.error('No summary in response:', response.data);
+        alert('Summary generated but response was empty. Try again.');
+      }
     } catch (error) {
       console.error('Error generating summary:', error);
-      alert('Failed to generate summary');
+      console.error('Error details:', error.response?.data);
+      alert(`Failed to generate summary: ${error.response?.data?.message || error.message}`);
+      setLoadingSummary(false); // Reset loading state on error
     } finally {
-      setLoadingSummary(false);
+      if (summary) {
+        setLoadingSummary(false);
+      }
     }
   }
 
@@ -111,6 +125,56 @@ function PostCard({ post, onDelete }) {
       console.error('Error deleting post:', error);
       alert('Failed to delete post');
     }
+  }
+
+  async function handleSave(e) {
+    if (e) e.stopPropagation();
+    
+    if (!user) {
+      alert("Please login to save posts");
+      return;
+    }
+
+    try {
+      const newSavedState = !isSaved;
+      // Optimistic update
+      setIsSaved(newSavedState);
+
+      if (newSavedState) {
+        await axios.post(`/posts/${post._id}/save`);
+      } else {
+        await axios.post(`/posts/${post._id}/unsave`);
+        // If we're on the saved posts page, notify parent to remove this post
+        if (isSavedPage && onUnsave) {
+          onUnsave(post._id);
+        }
+      }
+    } catch (error) {
+      console.error('Error saving/unsaving post:', error);
+      // Revert on error
+      setIsSaved(!isSaved);
+      alert('Failed to save/unsave post');
+    }
+  }
+
+  function handleShare(e) {
+    if (e) e.stopPropagation();
+    
+    // Create the full URL for the post
+    const postUrl = `${window.location.origin}/posts/${post._id}`;
+    
+    // Copy to clipboard
+    navigator.clipboard.writeText(postUrl)
+      .then(() => {
+        setCopySuccess(true);
+        // Reset after 2 seconds
+        setTimeout(() => {
+          setCopySuccess(false);
+        }, 2000);
+      })
+      .catch((err) => {
+        console.error('Failed to copy link:', err);
+      });
   }
 
   const handleCardClick = (e) => {
@@ -197,11 +261,11 @@ function PostCard({ post, onDelete }) {
              {/* Prioritize details array length, fallback to feed count, fallback to 0 */}
              💬 {post.comments?.length >= 0 ? post.comments.length : (post.commentCount || 0)} Comments
           </div>
-          <div className="action-btn">
-             ↪ Share
+          <div className="action-btn" onClick={handleShare}>
+             {copySuccess ? '✓ Link copied!' : '↪ Share'}
           </div>
-          <div className="action-btn">
-             🔖 Save
+          <div className="action-btn" onClick={handleSave}>
+             {isSaved ? '🔖 Saved' : '🔗 Save'}
           </div>
           {user && post.author && (post.author._id === user.id || post.author._id === user._id || post.author === user.id || post.author === user._id) && (
             <div className="action-btn delete-btn" onClick={(e) => handleDelete(e)}>

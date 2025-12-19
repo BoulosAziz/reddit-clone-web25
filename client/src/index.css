@@ -28,6 +28,16 @@
   --text: var(--text-dark);
   --muted: var(--muted-dark);
   --hover-overlay: rgba(255, 255, 255, 0.08);
+
+  /* Aliases for compatibility */
+  --bg-primary: var(--bg);
+  --bg-secondary: var(--surface);
+  --text-primary: var(--text);
+  --text-secondary: var(--muted);
+  --border-color: var(--border);
+  --bg-hover: var(--hover-overlay);
+  --primary-color: var(--brand-orange);
+  --primary-hover: #ff5414;
 }
 
 * {

@@ -125,6 +125,25 @@ export const leaveCommunity = async (req, res) => {
   }
 };
 
+/* ---------------------------------------
+   GET USER'S JOINED COMMUNITIES
+---------------------------------------- */
+export const getUserJoinedCommunities = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).populate(
+      "joinedCommunities",
+      "name description members createdAt"
+    );
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.json(user.joinedCommunities);
+  } catch (error) {
+    console.error("Error fetching joined communities:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 export const searchCommunities = async (req, res) => {
   try {
     const { q } = req.query; // /api/communities/search?q=cats

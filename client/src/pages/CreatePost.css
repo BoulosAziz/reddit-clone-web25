@@ -29,6 +29,38 @@
   overflow: hidden;
 }
 
+/* Community Selector */
+.community-selector-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.community-selector {
+  width: 100%;
+  background: rgba(39, 39, 41, 0.3);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 10px 12px;
+  color: var(--text);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.community-selector:focus {
+  outline: none;
+  border-color: var(--blue);
+  background: var(--surface);
+}
+
+.community-selector option {
+  background: var(--surface);
+  color: var(--text);
+}
+
 /* Post Type Tabs */
 .post-type-tabs {
   display: flex;

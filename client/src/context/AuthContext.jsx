@@ -81,12 +81,25 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("user");
   };
 
+  const refreshUser = async () => {
+    if (token) {
+      try {
+        const res = await axios.get("/users/profile");
+        setUser(res.data);
+        localStorage.setItem("user", JSON.stringify(res.data));
+      } catch (err) {
+        console.error("Failed to refresh user", err);
+      }
+    }
+  };
+
   const value = {
     user,
     token,
     login,
     register,
     logout,
+    refreshUser,
     isAuthenticated: !!token,
     loading
   };

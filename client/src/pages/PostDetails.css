@@ -59,6 +59,26 @@
   height: fit-content;
 }
 
+.ai-summary-card {
+  background-color: #1A1A1B;
+  border: 1px solid #343536;
+  border-radius: 4px;
+  padding: 16px;
+  height: fit-content;
+}
+
+.ai-summary-card h3 {
+  color: #D7DADC;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.ai-summary-card p {
+  color: #D7DADC;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
 .community-desc {
   font-size: 14px;
   color: #D7DADC;

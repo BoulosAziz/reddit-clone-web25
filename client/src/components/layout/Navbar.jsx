@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTheme } from "../../context/ThemeContext.jsx";
 import { useAuth } from "../../context/AuthContext.jsx";
 import AskModal from "../features/AskModal";
@@ -8,6 +8,14 @@ import "./Navbar.css";
 function Navbar() {
   const { user, logout } = useAuth();
   const [isAskModalOpen, setIsAskModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
+
+  const handleSearch = (e) => {
+    if (e.key === 'Enter' && searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
 
   return (
     <>
@@ -27,7 +35,12 @@ function Navbar() {
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
-            <input placeholder="Find anything" />
+            <input 
+              placeholder="Find anything" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={handleSearch}
+            />
           </div>
 
           <button 
@@ -46,7 +59,7 @@ function Navbar() {
             
             {user ? (
               <>
-                <span className="user-name">u/{user.username}</span>
+                <Link to={`/u/${user.username}`} className="user-name">u/{user.username}</Link>
                 <button onClick={logout} className="nav-btn-primary">Log Out</button>
               </>
             ) : (

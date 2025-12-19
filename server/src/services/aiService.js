@@ -1,38 +1,45 @@
-// AI Service using Bytez.js
-import Bytez from "bytez.js";
+// AI Service using Groq API
+import Groq from "groq-sdk";
 
-// Initialize Bytez SDK
-const sdk = new Bytez(process.env.BYTEZ_API_KEY);
-const model = sdk.model("Qwen/Qwen3-0.6B");
+// Lazy initialization - create client only when needed
+function getGroqClient() {
+    if (!process.env.GROQ_API_KEY) {
+        throw new Error("GROQ_API_KEY is not set in environment variables");
+    }
+    return new Groq({
+        apiKey: process.env.GROQ_API_KEY
+    });
+}
 
 export async function summarizePost(title, content) {
     try {
-        console.log('=== AI Summarization Request (Bytez) ===');
-        console.log('API Key exists:', !!process.env.BYTEZ_API_KEY);
+        console.log('=== AI Summarization Request (Groq) ===');
+        console.log('API Key exists:', !!process.env.GROQ_API_KEY);
 
         if (!content || content.length < 100) {
             console.log('Content too short, skipping summarization');
             return null;
         }
 
+        const groq = getGroqClient();
         const prompt = `Summarize this post in 2-3 concise sentences:\n\nTitle: ${title}\n\nContent: ${content}`;
 
-        console.log('Calling Bytez API...');
-        const { error, output } = await model.run([
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ]);
+        console.log('Calling Groq API...');
+        const completion = await groq.chat.completions.create({
+            messages: [
+                {
+                    role: "user",
+                    content: prompt
+                }
+            ],
+            model: "llama-3.3-70b-versatile",
+            temperature: 0.7,
+            max_tokens: 200
+        });
 
-        if (error) {
-            console.error('Bytez API Error:', error);
-            throw new Error(error);
-        }
-
+        const text = completion.choices[0]?.message?.content;
         console.log('Summary generated successfully');
-        // Output seems to be the text response string based on user example
-        return typeof output === 'string' ? output.trim() : JSON.stringify(output);
+        return text.trim();
 
     } catch (error) {
         console.error('=== Error generating summary ===');
@@ -54,18 +61,24 @@ export async function summarizeComments(comments) {
     try {
         if (!comments || comments.length === 0) return null;
 
+        const groq = getGroqClient();
         const commentsText = comments.map(c => c.content).join('\n\n');
         const prompt = `Summarize the main discussion points from these comments in 2-3 sentences:\n\n${commentsText}`;
-        
-        const { error, output } = await model.run([
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ]);
 
-        if (error) throw new Error(error);
-        return typeof output === 'string' ? output.trim() : JSON.stringify(output);
+        const completion = await groq.chat.completions.create({
+            messages: [
+                {
+                    role: "user",
+                    content: prompt
+                }
+            ],
+            model: "llama-3.3-70b-versatile",
+            temperature: 0.7,
+            max_tokens: 200
+        });
+
+        const text = completion.choices[0]?.message?.content;
+        return text.trim();
     } catch (error) {
         console.error('Error generating comment summary:', error);
         return null;
@@ -74,34 +87,51 @@ export async function summarizeComments(comments) {
 
 export async function askQuestion(question) {
     try {
-        console.log('=== AI Ask Request (Bytez) ===');
+        console.log('=== AI Ask Request (Groq) ===');
         if (!question) return null;
 
-        const prompt = `You are a helpful Reddit assistant. Answer general knowledge questions and recommend real subreddits. 
-        Question: "${question}"
-        
-        Respond in strict JSON format:
-        {
-            "answer": "Concise answer here.",
-            "communities": ["r/Name1", "r/Name2"]
-        }`;
+        // Import Community model to fetch real communities
+        const Community = (await import("../models/Community.js")).default;
 
-        const { error, output } = await model.run([
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ]);
+        // Fetch all communities from database
+        const communities = await Community.find({}, 'name description').limit(50);
+        const communityList = communities.map(c => `r/${c.name} - ${c.description || 'No description'}`).join('\n');
 
-        if (error) {
-            console.error('Bytez API Error:', error);
-            throw new Error(error);
-        }
+        console.log(`Found ${communities.length} communities to recommend from`);
 
-        let text = typeof output === 'string' ? output : JSON.stringify(output);
+        const groq = getGroqClient();
+
+        const prompt = `You are a helpful Reddit assistant. Answer the user's question and recommend REAL subreddits from the available communities list.
+
+Question: "${question}"
+
+Available Communities in Database:
+${communityList}
+
+Important: ONLY recommend communities from the list above. Choose 2-3 most relevant ones.
+
+Respond in strict JSON format:
+{
+    "answer": "Concise answer to the question.",
+    "communities": ["r/Name1", "r/Name2"]
+}`;
+
+        const completion = await groq.chat.completions.create({
+            messages: [
+                {
+                    role: "user",
+                    content: prompt
+                }
+            ],
+            model: "llama-3.3-70b-versatile",
+            temperature: 0.5,
+            max_tokens: 500
+        });
+
+        let text = completion.choices[0]?.message?.content;
         console.log('AI Response:', text);
 
-        // Clean up markdown
+        // Clean up markdown code blocks if present
         text = text.replace(/```json/g, '').replace(/```/g, '').trim();
 
         try {
@@ -109,6 +139,7 @@ export async function askQuestion(question) {
             return data;
         } catch (parseError) {
             console.error('JSON Parse Error:', parseError);
+            // If JSON parsing fails, return the text as answer
             return {
                 answer: text,
                 communities: []
@@ -116,9 +147,10 @@ export async function askQuestion(question) {
         }
     } catch (error) {
         console.error('Error asking AI:', error);
+        console.error('Full error:', error.message);
         return {
-            answer: "I'm having trouble connecting to the real AI brain right now (likely an API key issue). However, if I were working, I'd tell you that simulation is the key to testing! Here are some communities you might like.",
-            communities: ["r/SimulationTheory", "r/programming", "r/AskReddit"]
+            answer: "I'm having trouble connecting to the AI right now. Please try again in a moment.",
+            communities: ["r/AskReddit", "r/NoStupidQuestions", "r/explainlikeimfive"]
         };
     }
 }

@@ -1,7 +1,8 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import axios from "../api/axios";
 import { useAuth } from "../context/AuthContext";
+import { useCommunity } from "../context/CommunityContext";
 import "./CreatePost.css";
 
 function CreatePost() {
@@ -12,9 +13,23 @@ function CreatePost() {
   const [mediaPreview, setMediaPreview] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [linkUrl, setLinkUrl] = useState("");
+  const [selectedCommunity, setSelectedCommunity] = useState(null);
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
   const { user } = useAuth();
+  const { joinedCommunities } = useCommunity();
+
+  // Check if community is specified in URL
+  useEffect(() => {
+    const communityParam = searchParams.get('community');
+    if (communityParam && joinedCommunities.length > 0) {
+      const community = joinedCommunities.find(c => c.name.toLowerCase() === communityParam.toLowerCase());
+      if (community) {
+        setSelectedCommunity(community);
+      }
+    }
+  }, [searchParams, joinedCommunities]);
 
   // Handle file selection
   const handleFileSelect = (e) => {
@@ -77,7 +92,7 @@ function CreatePost() {
       const response = await axios.post('/posts', { 
         title, 
         content: body,
-        community: null,
+        community: selectedCommunity?._id || null,
         mediaUrl,
         mediaType,
         linkUrl: postType === 'link' ? linkUrl : null
@@ -103,6 +118,26 @@ function CreatePost() {
 
       <form onSubmit={handleSubmit} className="create-post-form">
         <div className="create-post-card">
+          {/* Community Selector */}
+          <div className="form-group">
+            <label className="community-selector-label">Choose a community</label>
+            <select 
+              className="community-selector"
+              value={selectedCommunity?._id || ''}
+              onChange={(e) => {
+                const community = joinedCommunities.find(c => c._id === e.target.value);
+                setSelectedCommunity(community || null);
+              }}
+            >
+              <option value="">Select a community (optional)</option>
+              {joinedCommunities.map(community => (
+                <option key={community._id} value={community._id}>
+                  r/{community.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* Post Type Tabs */}
           <div className="post-type-tabs">
             <button 

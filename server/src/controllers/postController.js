@@ -92,11 +92,16 @@ export const deletePost = handleAsync(async (req, res) => {
 export const getGlobalFeed = handleAsync(async (req, res) => {
   console.log("getGlobalFeed called with sort:", req.query.sort);
   try {
-    const { sort } = req.query; // new, top, best, hot
+    const { sort, community } = req.query; // new, top, best, hot, community
+
+    const filter = {};
+    if (community) {
+      filter.community = community;
+    }
 
     // Initial fetch - sorts by new by default in DB for efficiency, 
     // but we'll re-sort in memory for other modes
-    let posts = await Post.find()
+    let posts = await Post.find(filter)
       .populate("author", "username")
       .populate("community", "name"); // removed sort here to handle manually
 
@@ -255,3 +260,82 @@ export const addComment = handleAsync(async (req, res) => {
 
   res.status(201).json(populatedComment);
 });
+
+/* ---------------------------------------
+   SAVE POST
+---------------------------------------- */
+export const savePost = handleAsync(async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user._id;
+
+  const User = (await import("../models/User.js")).default;
+  const user = await User.findById(userId);
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  // Check if post exists
+  const post = await Post.findById(id);
+  if (!post) {
+    return res.status(404).json({ message: "Post not found" });
+  }
+
+  // Check if already saved
+  if (user.savedPosts.includes(id)) {
+    return res.status(400).json({ message: "Post already saved" });
+  }
+
+  user.savedPosts.push(id);
+  await user.save();
+
+  res.json({ message: "Post saved successfully" });
+});
+
+/* ---------------------------------------
+   UNSAVE POST
+---------------------------------------- */
+export const unsavePost = handleAsync(async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user._id;
+
+  const User = (await import("../models/User.js")).default;
+  const user = await User.findById(userId);
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  user.savedPosts = user.savedPosts.filter(
+    postId => postId.toString() !== id.toString()
+  );
+  await user.save();
+
+  res.json({ message: "Post unsaved successfully" });
+});
+
+/* ---------------------------------------
+   GET SAVED POSTS
+---------------------------------------- */
+export const getSavedPosts = handleAsync(async (req, res) => {
+  const userId = req.user._id;
+
+  const User = (await import("../models/User.js")).default;
+  const user = await User.findById(userId).populate({
+    path: "savedPosts",
+    populate: [
+      { path: "author", select: "username" },
+      { path: "community", select: "name" }
+    ]
+  });
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  // Add comment counts and scores
+  const postsWithCounts = await populatePostFields(user.savedPosts);
+
+  res.json(postsWithCounts);
+});
+

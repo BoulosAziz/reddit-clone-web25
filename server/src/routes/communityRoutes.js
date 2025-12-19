@@ -8,6 +8,7 @@ import {
   joinCommunity,
   leaveCommunity,
   searchCommunities,
+  getUserJoinedCommunities,
 } from "../controllers/communityController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
@@ -16,6 +17,8 @@ const router = express.Router();
 // GET /api/communities
 router.get("/", getCommunities);
 
+// GET /api/communities/user/joined
+router.get("/user/joined", protect, getUserJoinedCommunities);
 
 router.get("/search", searchCommunities);
 

@@ -1,14 +1,56 @@
 import PostCard from "../components/ui/PostCard.jsx";
 import { useState, useEffect } from "react";
 import axios from "../api/axios";
+import { useCommunity } from "../context/CommunityContext";
 import './Home.css';
+
+// Helper to get community emoji icon
+const getCommunityIcon = (name) => {
+  const icons = {
+    gaming: "🎮",
+    technology: "💻",
+    science: "🔬",
+    movies: "🎬",
+    funny: "😂",
+    music: "🎵",
+    books: "📚",
+    travel: "✈️",
+    food: "🍔",
+    art: "🎨",
+    fitness: "💪",
+    programming: "👨‍💻",
+    minecraft: "🎮",
+    eldenring: "🎮",
+    pcgaming: "🖥️",
+    hardware: "💻",
+    software: "💾",
+    television: "📺",
+    strangerthings: "📺",
+    marvel: "🦸",
+    memes: "😂",
+    askreddit: "❓",
+    space: "🚀",
+    biology: "🧬",
+    nba: "🏀",
+    soccer: "⚽",
+    photography: "📷",
+    earthporn: "🌍",
+    cryptocurrency: "💰",
+    investing: "📈",
+    wallstreetbets: "💹",
+    cooking: "🍳"
+  };
+  return icons[name.toLowerCase()] || "📌";
+};
 
 function Home() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('Hot');
-
+  const [popularCommunities, setPopularCommunities] = useState([]);
   const [error, setError] = useState(null);
+  
+  const { addJoinedCommunity, fetchJoinedCommunities, isJoined, joinedCommunities } = useCommunity();
 
   useEffect(() => {
     async function fetchPosts() {
@@ -37,6 +79,43 @@ function Home() {
     }
     fetchPosts();
   }, [filter]);
+
+  // Fetch popular communities (excluding already joined ones)
+  useEffect(() => {
+    async function fetchPopularCommunities() {
+      try {
+        const res = await axios.get('/communities');
+        // Get IDs of joined communities
+        const joinedIds = joinedCommunities.map(c => c._id);
+        // Filter out joined communities, sort by member count, and take top 5
+        const sorted = res.data
+          .filter(c => !joinedIds.includes(c._id))
+          .sort((a, b) => (b.members?.length || 0) - (a.members?.length || 0))
+          .slice(0, 5);
+        setPopularCommunities(sorted);
+      } catch (err) {
+        console.error("Failed to fetch communities", err);
+      }
+    }
+    fetchPopularCommunities();
+  }, [joinedCommunities]);
+
+  const handleJoin = async (community) => {
+    try {
+      await axios.post(`/communities/${community._id}/join`);
+      // Refresh joined communities from server (this will auto-update popular communities via useEffect)
+      await fetchJoinedCommunities();
+    } catch (err) {
+      console.error("Failed to join community", err);
+      if (err.response?.status === 401) {
+        alert("Please login to join communities");
+      } else if (err.response?.status === 400) {
+        alert("You've already joined this community");
+      } else {
+        alert("Failed to join community");
+      }
+    }
+  };
 
   const handleDeletePost = (postId) => {
     setPosts(prevPosts => prevPosts.filter(p => p._id !== postId));
@@ -129,25 +208,35 @@ function Home() {
             <h3>POPULAR COMMUNITIES</h3>
           </div>
           <div className="community-list">
-            {[
-              { name: 'technology', members: '15.4m', icon: '💻', rank: 1 },
-              { name: 'science', members: '28.1m', icon: '🔬', rank: 2 },
-              { name: 'gaming', members: '34.2m', icon: '🎮', rank: 3 },
-              { name: 'movies', members: '22.8m', icon: '🎬', rank: 4 },
-              { name: 'askreddit', members: '40.2m', icon: '❓', rank: 5 },
-            ].map(c => (
-               <div key={c.name} className="community-item">
-                 <div className="community-info">
-                   <span className="community-rank">{c.rank}</span>
-                   <span className="community-icon-widget">{c.icon}</span>
-                   <div className="community-details">
-                     <div className="community-name">r/{c.name}</div>
-                     <div className="community-members">{c.members} members</div>
-                   </div>
-                 </div>
-                 <button className="btn-join">Join</button>
-               </div>
-            ))}
+            {popularCommunities.length > 0 ? (
+              popularCommunities.map((c, index) => {
+
+                const memberCount = c.members?.length || 0;
+                
+                return (
+                  <div key={c._id} className="community-item">
+                    <div className="community-info">
+                      <span className="community-rank">{index + 1}</span>
+                      <span className="community-icon-widget">{getCommunityIcon(c.name)}</span>
+                      <div className="community-details">
+                        <div className="community-name">r/{c.name}</div>
+                        <div className="community-members">{memberCount} members</div>
+                      </div>
+                    </div>
+                    <button 
+                      className="btn-join" 
+                      onClick={() => handleJoin(c)}
+                    >
+                      Join
+                    </button>
+                  </div>
+                );
+              })
+            ) : (
+              <div style={{ padding: '1rem', textAlign: 'center', color: '#999' }}>
+                Loading communities...
+              </div>
+            )}
           </div>
           <button className="btn-view-all">View All</button>
         </div>

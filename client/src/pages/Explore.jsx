@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "../api/axios";
+import { useCommunity } from "../context/CommunityContext";
 import "./Explore.css";
 
 const CATEGORIES = [
@@ -33,7 +34,7 @@ function Explore() {
   const [communities, setCommunities] = useState([]);
   const [activeTab, setActiveTab] = useState("All");
   const [loading, setLoading] = useState(true);
-  const [joinedCommunities, setJoinedCommunities] = useState(new Set());
+  const { isJoined, addJoinedCommunity, removeJoinedCommunity } = useCommunity();
 
   useEffect(() => {
     fetchCommunities();
@@ -52,17 +53,17 @@ function Explore() {
 
   const handleJoin = async (communityId) => {
     try {
-      const isJoined = joinedCommunities.has(communityId);
-      if (isJoined) {
+      const joined = isJoined(communityId);
+      if (joined) {
         await axios.post(`/communities/${communityId}/leave`);
-        setJoinedCommunities(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(communityId);
-          return newSet;
-        });
+        removeJoinedCommunity(communityId);
       } else {
         await axios.post(`/communities/${communityId}/join`);
-        setJoinedCommunities(prev => new Set(prev).add(communityId));
+        // Find the community object to add to context
+        const community = communities.find(c => c._id === communityId);
+        if (community) {
+          addJoinedCommunity(community);
+        }
       }
     } catch (error) {
       console.error("Error toggling join:", error);
@@ -135,7 +136,7 @@ function Explore() {
               key={community._id} 
               community={community} 
               onJoin={handleJoin}
-              isJoined={joinedCommunities.has(community._id)}
+              isJoined={isJoined(community._id)}
               getIcon={getCommunityIcon}
             />
           ))}
@@ -153,7 +154,7 @@ function Explore() {
                   key={community._id} 
                   community={community} 
                   onJoin={handleJoin}
-                  isJoined={joinedCommunities.has(community._id)}
+                  isJoined={isJoined(community._id)}
                   getIcon={getCommunityIcon}
                 />
               ))}

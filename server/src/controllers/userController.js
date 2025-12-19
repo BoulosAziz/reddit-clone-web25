@@ -1,5 +1,6 @@
 //userController.js
 import User from "../models/User.js";
+import Post from "../models/Post.js";
 
 /* ---------------------------------------
    GET LOGGED-IN USER PROFILE
@@ -7,7 +8,9 @@ import User from "../models/User.js";
 export const getMe = async (req, res) => {
   try {
     // req.user is added by authMiddleware
-    const user = await User.findById(req.user.id).select("-password");
+    const user = await User.findById(req.user.id)
+      .select("-password")
+      .populate("joinedCommunities", "name icon");
 
     if (!user) return res.status(404).json({ message: "User not found" });
 
@@ -60,6 +63,30 @@ export const searchUsers = async (req, res) => {
     }).select("-password");
 
     res.status(200).json(users);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// @desc    Get user by username
+// @route   GET /api/users/:username
+// @access  Public
+export const getUserByUsername = async (req, res) => {
+  try {
+    const user = await User.findOne({
+      username: { $regex: new RegExp(`^${req.params.username}$`, "i") }
+    }).select("-password");
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Fetch user's posts
+    const posts = await Post.find({ author: user._id })
+      .populate("community", "name")
+      .populate("author", "username")
+      .sort({ createdAt: -1 });
+
+    res.json({ user, posts });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
