@@ -93,3 +93,26 @@ export const getUserByUsername = async (req, res) => {
   }
 };
 
+// @desc    Upload user avatar
+// @route   PUT /api/users/me/avatar
+// @access  Protected
+export const uploadUserAvatar = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    const avatarPath = `/uploads/avatars/${req.file.filename}`;
+
+    req.user.avatar = avatarPath;
+    await req.user.save();
+
+    res.status(200).json({
+      message: "Avatar uploaded successfully",
+      avatar: avatarPath,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};

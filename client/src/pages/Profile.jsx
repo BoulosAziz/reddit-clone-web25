@@ -18,6 +18,7 @@ function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const [editBio, setEditBio] = useState("");
   const [editAvatar, setEditAvatar] = useState("");
+  const [avatarFile, setAvatarFile] = useState(null);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -32,6 +33,7 @@ function Profile() {
         // Initialize edit state
         setEditBio(res.data.user.bio || "");
         setEditAvatar(res.data.user.avatar || "");
+        setAvatarFile(null);
       } catch (err) {
         console.error(err);
         setError("User not found");
@@ -46,10 +48,29 @@ function Profile() {
     e.preventDefault();
     setSaving(true);
     try {
+      let currentAvatar = editAvatar;
+
+      // 1. Handle File Upload if exists
+      if (avatarFile) {
+        const formData = new FormData();
+        formData.append('avatar', avatarFile);
+        
+        const uploadRes = await axios.put("/users/me/avatar", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        
+        // Use the new uploaded avatar URL
+        currentAvatar = uploadRes.data.avatar;
+      }
+
+      // 2. Update Bio (and Avatar URL if no file was uploaded but URL changed)
+      // Note: If we uploaded a file, currentAvatar is the new path. 
+      // We pass it to /users/me to ensure consistency, or simply to update the bio.
       const res = await axios.put("/users/me", {
         bio: editBio,
-        avatar: editAvatar
+        avatar: currentAvatar
       });
+
       // Update local state
       setProfile({ ...profile, bio: res.data.bio, avatar: res.data.avatar });
       // Sync global auth state (navbar avatar, etc)
@@ -60,6 +81,12 @@ function Profile() {
       alert("Failed to update profile");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setAvatarFile(e.target.files[0]);
     }
   };
 
@@ -144,14 +171,23 @@ function Profile() {
               </div>
               
               <div className="form-group">
-                <label>Avatar URL</label>
-                <input 
-                  type="text" 
-                  value={editAvatar} 
-                  onChange={e => setEditAvatar(e.target.value)}
-                  className="edit-input"
-                  placeholder="https://..."
-                />
+                <label>Avatar Image</label>
+                <div className="avatar-upload-options">
+                  <input 
+                    type="file" 
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="file-input"
+                  />
+                  <div className="separator">OR</div>
+                  <input 
+                    type="text" 
+                    value={editAvatar} 
+                    onChange={e => setEditAvatar(e.target.value)}
+                    className="edit-input"
+                    placeholder="Image URL (https://...)"
+                  />
+                </div>
               </div>
 
               <div className="modal-actions">

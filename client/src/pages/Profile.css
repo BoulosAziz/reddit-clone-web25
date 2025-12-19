@@ -1,56 +1,54 @@
+/* Profile Page Styles */
 .profile-page {
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 20px 0;
 }
 
-.profile-loading, .profile-error {
-  text-align: center;
-  padding: 40px;
-  color: var(--text);
-}
-
+/* Header Card */
 .profile-header-card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 4px;
-  margin-bottom: 20px;
   overflow: hidden;
-  position: relative;
+  margin-bottom: 20px;
 }
 
 .profile-cover {
-  height: 100px;
-  background: #33a8ff; /* Default blue cover */
+  height: 150px;
+  background: #33a8ff;
 }
 
 .profile-header-content {
+  padding: 0 24px;
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  padding: 0 20px;
-  margin-top: -40px; /* Overlap cover */
+  margin-top: -40px;
+  position: relative;
 }
 
 .profile-avatar-container {
   width: 80px;
   height: 80px;
-  border-radius: 50%;
-  border: 4px solid var(--surface);
   background: var(--surface);
-  overflow: hidden;
+  border-radius: 50%;
+  padding: 4px;
 }
 
 .profile-avatar-large {
   width: 100%;
   height: 100%;
+  border-radius: 50%;
   object-fit: cover;
+  background: white;
 }
 
 .profile-avatar-placeholder {
   width: 100%;
   height: 100%;
-  background: #ff4500;
+  border-radius: 50%;
+  background: var(--brand-orange);
   color: white;
   display: flex;
   align-items: center;
@@ -60,89 +58,107 @@
 }
 
 .profile-actions {
-  margin-bottom: 10px;
+  margin-bottom: 15px;
 }
 
 .btn-edit-profile {
-  padding: 6px 16px;
-  border: 1px solid var(--border);
-  border-radius: 9999px;
   background: transparent;
+  border: 1px solid var(--text);
   color: var(--text);
   font-weight: 700;
+  padding: 4px 16px;
+  border-radius: 20px;
   cursor: pointer;
+  transition: all 0.2s;
 }
 
 .btn-edit-profile:hover {
-  background: var(--hover-overlay);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .profile-info {
-  padding: 16px 20px;
+  padding: 10px 24px 24px;
 }
 
 .profile-username {
   font-size: 24px;
   font-weight: 700;
-  color: var(--text);
-  margin-bottom: 4px;
+  margin: 0 0 4px;
 }
 
 .profile-bio {
   font-size: 14px;
   color: var(--text);
   margin-bottom: 12px;
+  line-height: 1.5;
 }
 
 .profile-stats {
   display: flex;
-  gap: 16px;
-  margin-top: 8px;
+  gap: 20px;
+  font-size: 14px;
+  color: var(--muted);
 }
 
 .stat {
   display: flex;
-  flex-direction: column;
-  font-size: 12px;
-}
-
-.stat-label {
-  color: var(--muted);
-  text-transform: uppercase;
-  font-weight: 700;
+  gap: 4px;
 }
 
 .stat-value {
+  font-weight: 600;
   color: var(--text);
-  font-weight: 500;
+}
+
+/* Tabs */
+.profile-content {
+  display: flex;
+  flex-direction: column;
 }
 
 .profile-tabs {
   display: flex;
-  gap: 20px;
   border-bottom: 1px solid var(--border);
   margin-bottom: 20px;
+  background: var(--surface);
 }
 
 .tab {
   background: transparent;
   border: none;
   border-bottom: 3px solid transparent;
-  padding: 10px 4px;
   color: var(--muted);
   font-weight: 700;
+  padding: 15px 20px;
   cursor: pointer;
 }
 
 .tab.active {
   color: var(--text);
-  border-bottom-color: var(--primary-color);
+  border-bottom-color: var(--text); /* Reddit uses blue or black usually */
+}
+
+.tab:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Feed */
+.profile-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .empty-feed {
-  text-align: center;
+  display: flex;
+  justify-content: center;
   padding: 40px;
   color: var(--muted);
+  font-weight: 500;
+  font-size: 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
 }
 
 /* Modal */
@@ -156,63 +172,129 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 2000;
 }
 
 .profile-edit-modal {
-  width: 400px;
-  max-width: 90%;
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 4px;
   padding: 24px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  border-radius: 8px;
+  width: 100%;
+  max-width: 500px;
+  border: 1px solid var(--border);
 }
 
 .profile-edit-modal h2 {
+  margin-top: 0;
   margin-bottom: 20px;
-  color: var(--text);
+  font-size: 20px;
   border-bottom: 1px solid var(--border);
   padding-bottom: 10px;
 }
 
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.sub-label {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: -4px;
+  margin-bottom: 8px;
+}
+
+.edit-input,
 .edit-textarea {
   width: 100%;
-  height: 100px;
   background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: 4px;
   color: var(--text);
-  padding: 8px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-family: inherit;
+}
+
+.edit-textarea {
+  height: 100px;
   resize: vertical;
 }
 
-.edit-input {
-  width: 100%;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  color: var(--text);
-  padding: 8px;
-}
-
 .modal-actions {
-  margin-top: 24px;
   display: flex;
   justify-content: flex-end;
   gap: 12px;
+  margin-top: 30px;
 }
 
-.btn-save {
-  padding: 8px 16px;
-  border-radius: 9999px;
-  border: none;
-  background: var(--primary-color);
-  color: white;
+.btn-cancel {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 8px 20px;
+  border-radius: 20px;
   font-weight: 700;
   cursor: pointer;
 }
 
-.btn-save:hover {
-  filter: brightness(1.1);
+.btn-save {
+  background: var(--brand-orange);
+  border: none;
+  color: white;
+  padding: 8px 24px;
+  border-radius: 20px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-save:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Avatar Upload Options */
+.avatar-upload-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--bg);
+  padding: 12px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+.file-input {
+  width: 100%;
+}
+
+.separator {
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 700;
+  position: relative;
+}
+
+.separator::before,
+.separator::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 45%;
+  height: 1px;
+  background: var(--border);
+}
+
+.separator::before {
+  left: 0;
+}
+
+.separator::after {
+  right: 0;
 }

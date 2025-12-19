@@ -8,7 +8,10 @@ import userRoutes from "./routes/userRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
 import commentRoutes from "./routes/commentRoutes.js";
 import communityRoutes from "./routes/communityRoutes.js";
+
 import aiRoutes from "./routes/aiRoutes.js";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const app = express();
 app.use(cors());
@@ -18,6 +21,10 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // connect to MongoDB
 connectDB();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // Basic route
 app.get("/", (req, res) => {
