@@ -8,7 +8,7 @@ import { uploadAvatar } from "../middleware/uploadMiddleware.js";
 const router = express.Router();
 
 // Search users
-router.get("/search", searchUsers);
+router.get("/search", protect, searchUsers);
 
 // GET /api/users/me     → Get profile
 router.get("/me", protect, getMe);
