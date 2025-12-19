@@ -2,6 +2,16 @@
 import Community from "../models/Community.js";
 import User from "../models/User.js";
 import Post from "../models/Post.js";
+import Comment from "../models/Comment.js";
+
+// Helper to populate comment counts AND score (duplicated from postController for now)
+const populatePostFields = async (posts) => {
+  return Promise.all(posts.map(async (post) => {
+    const commentCount = await Comment.countDocuments({ post: post._id });
+    const score = (post.upvotes ? post.upvotes.length : 0) - (post.downvotes ? post.downvotes.length : 0);
+    return { ...post.toObject(), commentCount, score };
+  }));
+};
 
 /* ---------------------------------------
    CREATE COMMUNITY
@@ -55,7 +65,9 @@ export const getCommunityById = async (req, res) => {
       .populate("author", "username")
       .sort({ createdAt: -1 });
 
-    res.json({ community, posts });
+    const postsWithCounts = await populatePostFields(posts);
+
+    res.json({ community, posts: postsWithCounts });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
@@ -109,6 +121,25 @@ export const leaveCommunity = async (req, res) => {
 
     res.json({ message: "Left community" });
   } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+/* ---------------------------------------
+   GET USER'S JOINED COMMUNITIES
+---------------------------------------- */
+export const getUserJoinedCommunities = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).populate(
+      "joinedCommunities",
+      "name description members createdAt"
+    );
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.json(user.joinedCommunities);
+  } catch (error) {
+    console.error("Error fetching joined communities:", error);
     res.status(500).json({ message: "Server error" });
   }
 };

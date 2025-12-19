@@ -1,5 +1,9 @@
 //userController.js
 import User from "../models/User.js";
+<<<<<<< HEAD
+import Post from "../models/Post.js";
+=======
+>>>>>>> 71a51ead299df8a865625f022d89588fcf604752
 
 /* ---------------------------------------
    GET LOGGED-IN USER PROFILE
@@ -7,7 +11,13 @@ import User from "../models/User.js";
 export const getMe = async (req, res) => {
   try {
     // req.user is added by authMiddleware
+<<<<<<< HEAD
+    const user = await User.findById(req.user.id)
+      .select("-password")
+      .populate("joinedCommunities", "name icon");
+=======
     const user = await User.findById(req.user.id).select("-password");
+>>>>>>> 71a51ead299df8a865625f022d89588fcf604752
 
     if (!user) return res.status(404).json({ message: "User not found" });
 
@@ -66,6 +76,33 @@ export const searchUsers = async (req, res) => {
   }
 };
 
+<<<<<<< HEAD
+// @desc    Get user by username
+// @route   GET /api/users/:username
+// @access  Public
+export const getUserByUsername = async (req, res) => {
+  try {
+    const user = await User.findOne({
+      username: { $regex: new RegExp(`^${req.params.username}$`, "i") }
+    }).select("-password");
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Fetch user's posts
+    const posts = await Post.find({ author: user._id })
+      .populate("community", "name")
+      .populate("author", "username")
+      .sort({ createdAt: -1 });
+
+    res.json({ user, posts });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+=======
+>>>>>>> 71a51ead299df8a865625f022d89588fcf604752
 // @desc    Upload user avatar
 // @route   PUT /api/users/me/avatar
 // @access  Protected
@@ -89,4 +126,7 @@ export const uploadUserAvatar = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+<<<<<<< HEAD
+=======
 
+>>>>>>> 71a51ead299df8a865625f022d89588fcf604752
